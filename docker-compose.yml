@@ -1,0 +1,17 @@
+version: '3'
+services:
+
+  #Flask Service
+  flaskapp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: flaskapp:0.1
+    container_name: flaskapp
+    restart: unless-stopped
+    tty: true
+    environment:
+      FLASK_APP: project
+      FLASK_DEBUG: 1
+    ports:
+      - 56733:5000

@@ -12,3 +12,4 @@ def index():
 @login_required
 def profile():
     return render_template('profile.html', customer_name=current_user.customer_name)
+
