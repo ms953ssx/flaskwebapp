@@ -13,5 +13,7 @@ RUN pip install -r requirements.txt
 EXPOSE 80/tcp
 EXPOSE 443/tcp
 
+
 # Run the application:
 CMD ["python", "-m", "flask", "run", "--host=0.0.0.0", "--port=80"]
+
