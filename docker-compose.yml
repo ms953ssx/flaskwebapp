@@ -6,7 +6,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: flaskapp:0.1
+    image: flaskapp:0.2
     container_name: flaskapp
     restart: unless-stopped
     tty: true
