@@ -27,6 +27,32 @@ def login_post():
     login_user(user, remember=remember)
     return redirect(url_for('main.profile'))
 
+@auth.route('/passreset')
+def passreset():
+    return render_template('passreset.html')
+
+def passreset_post():
+    #code for reset password will go here
+    customer_email = request.form.get('email')
+    customer_confirm_email = request.form.get('confirm_email')
+
+    user = User.query.filter_by(customer_email=customer_email).first() # check if account exists with email
+
+    if customer_email != customer_confirm_email:
+        flash('Emails do not match! Please try again.')
+        return redirect(url_for('auth.passreset')) #if both email addresses do not match, reload the page
+    
+    #if above check passes, check if email exists in database
+    user = User.query.filter_by(customer_email=customer_email).first() # check if account exists with email
+    
+    if not user:
+        flash('Email address does not exist!')
+        return redirect(url_for('auth.passreset'))
+    
+    # code for sending password reset will go here
+
+
+    return redirect(url_for('main.index'))
 
 @auth.route('/signup')
 def signup():
