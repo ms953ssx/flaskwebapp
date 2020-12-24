@@ -13,7 +13,5 @@ services:
     environment:
       FLASK_APP: project
       FLASK_DEBUG: 1
-    env_file:
-      - .env
     ports:
       - 56733:5000

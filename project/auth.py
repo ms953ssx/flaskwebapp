@@ -1,23 +1,10 @@
-import os
-from threading import Thread
-from flask_mail import Mail, Message
 from flask_login import login_user, logout_user, login_required
-from flask import Blueprint, render_template, redirect, url_for, request, flash, Flask
+from flask import Blueprint, render_template, redirect, url_for, request, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 from .models import User
 from . import db
 
 auth = Blueprint('auth', __name__)
-
-#Mail Object for host email address
-app = Flask(__name__)
-app.config.update({
-    'MAIL_SENDER' : os.environ.get('MAIL_USERNAME'),
-    'MAIL_SERVER':'smtp.mail.yahoo.com',
-    'MAIL_PORT':587,
-    'MAIL_USE_SSL':True,
-    'MAIL_USERNAME':os.environ.get('MAIL_USERNAME'),
-    'MAIL_PASSWORD':os.environ.get('MAIL_PASSWORD')})
 
 @auth.route('/login')
 def login():
@@ -44,10 +31,8 @@ def login_post():
 def passreset():
     return render_template('passreset.html')
 
-@auth.route('/passreset', methods=['POST'])
 def passreset_post():
-    
-    #code for email validation
+    #code for reset password will go here
     customer_email = request.form.get('email')
     customer_confirm_email = request.form.get('confirm_email')
 
@@ -64,23 +49,10 @@ def passreset_post():
         flash('Email address does not exist!')
         return redirect(url_for('auth.passreset'))
     
-
-    mail = Mail()
-    
-    mail.init_app(app)
-    
-    #Message object to be sent in email subject for password reset
-    msg = Message(
-            subject="Password Reset for flaskapp181392",
-            recipients=[customer_email],
-            sender=os.environ.get("MAIL_USERNAME")
-    )
-    msg.body = "reset password link"
-    mail.send(msg)
+    # code for sending password reset will go here
 
 
-    return "Sent"
-
+    return redirect(url_for('main.index'))
 
 @auth.route('/signup')
 def signup():
