@@ -1,10 +1,22 @@
+import os
+from flask_mail import Mail, Message
 from flask_login import login_user, logout_user, login_required
-from flask import Blueprint, render_template, redirect, url_for, request, flash
+from flask import Blueprint, render_template, redirect, url_for, request, flash, Flask
 from werkzeug.security import generate_password_hash, check_password_hash
 from .models import User
 from . import db
 
 auth = Blueprint('auth', __name__)
+
+#Mail Object for host email address
+app = Flask(__name__)
+app.config.update({
+    'MAIL_SENDER' : os.environ.get('MAIL_USERNAME'),  #
+    'MAIL_SERVER':'smtp.mail.yahoo.com',
+    'MAIL_PORT':587,
+    'MAIL_USE_SSL':True,
+    'MAIL_USERNAME':os.environ.get('MAIL_USERNAME'),  #These environment variables will be instantiated within the
+    'MAIL_PASSWORD':os.environ.get('MAIL_PASSWORD')}) #.env.credentials file, manually by the user as to not directly store credentials when published onto github. This .env.credentials file should be .gitignore'd upon cloning this repository
 
 @auth.route('/login')
 def login():
@@ -31,8 +43,10 @@ def login_post():
 def passreset():
     return render_template('passreset.html')
 
+@auth.route('/passreset', methods=['POST'])
 def passreset_post():
-    #code for reset password will go here
+    
+    #code for email validation
     customer_email = request.form.get('email')
     customer_confirm_email = request.form.get('confirm_email')
 
@@ -49,10 +63,22 @@ def passreset_post():
         flash('Email address does not exist!')
         return redirect(url_for('auth.passreset'))
     
-    # code for sending password reset will go here
+    # attempt at creating a messag eto send by email. Cannot seem to debug the thrown KeyError by flask_mail.Message()
+    mail = Mail()
+    
+    mail.init_app(app)
+    
+    #Message object to be sent in email subject for password reset
+    msg = Message(  #This is the line which throws an error. Appears to be an error with the most recent distribution. Reverting to flask_mail==0.9.0 does not fix this error.
+            subject="Password Reset for flaskapp181392",
+            recipients=[customer_email],
+            sender=os.environ.get("MAIL_USERNAME")
+    )
+    msg.body = "reset password link"
+    mail.send(msg)
 
 
-    return redirect(url_for('main.index'))
+    return "Sent"
 
 @auth.route('/signup')
 def signup():

@@ -13,5 +13,8 @@ services:
     environment:
       FLASK_APP: project
       FLASK_DEBUG: 1
+    env_file:
+      - .env.credentials
     ports:
-      - 56733:5000
+      - 80:5000
+      - 443:443
