@@ -1,10 +1,22 @@
+import os
+from flask_mail import Mail, Message
 from flask_login import login_user, logout_user, login_required
-from flask import Blueprint, render_template, redirect, url_for, request, flash
+from flask import Blueprint, render_template, redirect, url_for, request, flash, Flask
 from werkzeug.security import generate_password_hash, check_password_hash
 from .models import User
 from . import db
 
 auth = Blueprint('auth', __name__)
+
+#Mail Object for host email address
+app = Flask(__name__)
+app.config.update({
+    'MAIL_SENDER' : os.environ.get('MAIL_USERNAME'),  #
+    'MAIL_SERVER':'smtp.mail.yahoo.com',
+    'MAIL_PORT':587,
+    'MAIL_USE_SSL':True,
+    'MAIL_USERNAME':os.environ.get('MAIL_USERNAME'),  #These environment variables will be instantiated within the
+    'MAIL_PASSWORD':os.environ.get('MAIL_PASSWORD')}) #.env.credentials file, manually by the user as to not directly store credentials when published onto github. This .env.credentials file should be .gitignore'd upon cloning this repository
 
 @auth.route('/login')
 def login():
@@ -27,6 +39,46 @@ def login_post():
     login_user(user, remember=remember)
     return redirect(url_for('main.profile'))
 
+@auth.route('/passreset')
+def passreset():
+    return render_template('passreset.html')
+
+@auth.route('/passreset', methods=['POST'])
+def passreset_post():
+    
+    #code for email validation
+    customer_email = request.form.get('email')
+    customer_confirm_email = request.form.get('confirm_email')
+
+    user = User.query.filter_by(customer_email=customer_email).first() # check if account exists with email
+
+    if customer_email != customer_confirm_email:
+        flash('Emails do not match! Please try again.')
+        return redirect(url_for('auth.passreset')) #if both email addresses do not match, reload the page
+    
+    #if above check passes, check if email exists in database
+    user = User.query.filter_by(customer_email=customer_email).first() # check if account exists with email
+    
+    if not user:
+        flash('Email address does not exist!')
+        return redirect(url_for('auth.passreset'))
+    
+    # attempt at creating a messag eto send by email. Cannot seem to debug the thrown KeyError by flask_mail.Message()
+    mail = Mail()
+    
+    mail.init_app(app)
+    
+    #Message object to be sent in email subject for password reset
+    msg = Message(  #This is the line which throws an error. Appears to be an error with the most recent distribution. Reverting to flask_mail==0.9.0 does not fix this error.
+            subject="Password Reset for flaskapp181392",
+            recipients=[customer_email],
+            sender=os.environ.get("MAIL_USERNAME")
+    )
+    msg.body = "reset password link"
+    mail.send(msg)
+
+
+    return "Sent"
 
 @auth.route('/signup')
 def signup():
