@@ -65,22 +65,22 @@ def passreset_post():
     if not user:
         flash('Email address does not exist!')
         return redirect(url_for('auth.passreset'))
+    try: 
+        # attempt at creating a messag eto send by email. Cannot seem to debug the thrown KeyError by flask_mail.Message()
+        mail = Mail()
+
+        mail.init_app(app)
     
-    # attempt at creating a messag eto send by email. Cannot seem to debug the thrown KeyError by flask_mail.Message()
-    mail = Mail()
-
-    mail.init_app(app)
-    
-    #Message object to be sent in email subject for password reset
-    msg = Message(  #This is the line which throws an error. Appears to be an error with the most recent distribution. Reverting to flask_mail==0.9.0 does not fix this error.
-            subject="Password Reset for flaskapp181392",
-            recipients=[customer_email],
-            sender=os.environ.get("MAIL_USERNAME")
-    )
-    msg.body = "reset password link"
-    mail.send(msg)
-
-
+        #Message object to be sent in email subject for password reset
+        msg = Message(  #This is the line which throws an error. Appears to be an error with the most recent distribution. Reverting to flask_mail==0.9.0 does not fix this error.
+                subject="Password Reset for flaskapp181392",
+                recipients=[customer_email],
+                sender=os.environ.get("MAIL_USERNAME")
+        )
+        msg.body = "reset password link"
+        mail.send(msg)
+    except:
+        flash('An error occurred! This functionality may not be complete!')
     return "Sent"
 
 @auth.route('/signup')
