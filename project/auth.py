@@ -1,3 +1,7 @@
+import uuid
+import logging
+from flask_sessionstore import Session
+from flask_session_captcha import FlaskSessionCaptcha
 import os
 from flask_mail import Mail, Message
 from flask_login import login_user, logout_user, login_required
