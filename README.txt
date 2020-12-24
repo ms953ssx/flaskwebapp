@@ -1,0 +1,4 @@
+**FLASK BASED LOGIN SYSTEM**
+
+
+BEFORE RUNNING 'docker-compose.yml' OR BUILDING 'Dockerfile', FILL IN CREDENTIALS WITHIN '.env.credentials' AND UNCOMMENT LINE IN '.gitignore' FILE

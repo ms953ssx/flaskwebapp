@@ -1,0 +1,3 @@
+#Uncomment line below upon filling in credentials, so they are not pushed to git repository once filled in.
+
+#.env.credentials
