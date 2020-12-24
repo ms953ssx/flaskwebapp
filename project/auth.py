@@ -5,8 +5,11 @@ from flask import Blueprint, render_template, redirect, url_for, request, flash,
 from werkzeug.security import generate_password_hash, check_password_hash
 from .models import User
 from . import db
+from sqlalchemy import text
+import pandas as pd
 
 auth = Blueprint('auth', __name__)
+
 
 #Mail Object for host email address
 app = Flask(__name__)
@@ -65,7 +68,7 @@ def passreset_post():
     
     # attempt at creating a messag eto send by email. Cannot seem to debug the thrown KeyError by flask_mail.Message()
     mail = Mail()
-    
+
     mail.init_app(app)
     
     #Message object to be sent in email subject for password reset
@@ -109,3 +112,16 @@ def signup_post():
 def logout():
     logout_user()
     return redirect(url_for('main.index'))
+
+
+#for printing SQL table as troubleshooting, not meant for final product
+@auth.route('/sqltable')
+def sqltable():
+    sql = text('SELECT customer_id, customer_name, customer_email, customer_password FROM User')
+    result = db.engine.execute(sql)
+    data = []
+    for item in result:
+        data.append(item)
+    df = pd.DataFrame(data, columns=['id', 'name', 'email', 'password hash']) 
+    
+    return render_template('sqltable.html',item=df.to_html())
